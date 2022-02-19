@@ -18,17 +18,31 @@
 #include "pico/stdlib.h"
 #include "perf_counter.h"
 
-#if defined(__PICO_USE_LCD_1IN3__) && __PICO_USE_LCD_1IN3__
+
 #include "DEV_Config.h"
 #include "LCD_1In3.h"
 #include "GLCD_Config.h"
-#endif
+#include "lvgl.h"
+#include "lv_port_disp_template.h"
+#include "lv_port_indev_template.h"
+
 
 #include <stdio.h>
 
 #include "RTE_Components.h"
 #if defined(RTE_Compiler_EventRecorder) && defined(USE_EVR_FOR_STDOUR)
 #   include <EventRecorder.h>
+#endif
+
+
+#if !defined(PICO_NO_FLASH)
+#if LV_USE_DEMO_BENCHMARK
+#   include "lv_demo_benchmark.h"
+#endif
+
+#if LV_USE_DEMO_WIDGETS
+#   include "lv_demo_widgets.h"
+#endif
 #endif
 
 /*============================ MACROS ========================================*/
@@ -104,7 +118,6 @@ static void system_init(void)
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
-#if defined(__PICO_USE_LCD_1IN3__) && __PICO_USE_LCD_1IN3__
     DEV_Delay_ms(100);
 
     if(DEV_Module_Init()!=0){
@@ -120,23 +133,33 @@ static void system_init(void)
     for (int n = 0; n < KEY_NUM; n++) {
         dev_key_init(n);
     }
-#endif
 }
 
-
-int main(void) 
+int main(void)
 {
     system_init();
-
-    printf("Hello Pico-Template\r\n");
-    uint32_t n = 0;
     
-    while (true) {
-        breath_led();
-        //gpio_put(PICO_DEFAULT_LED_PIN, 1);
-        //sleep_ms(500);
-        //gpio_put(PICO_DEFAULT_LED_PIN, 0);
-        //sleep_ms(500);
+    printf("Hello Pico-Template\r\n");
+    
+    lv_init();
+    lv_port_disp_init();
+    lv_port_indev_init();
+
+/* We have no sufficient SRAM to run those demos in all-in-ram mode*/
+#if !defined(PICO_NO_FLASH)
+#   if LV_USE_DEMO_BENCHMARK
+    lv_demo_benchmark();
+#   endif
+    
+#   if LV_USE_DEMO_WIDGETS
+    lv_demo_widgets();
+#   endif
+#endif
+    
+    while(1) {
+        
+        lv_timer_handler_run_in_period(5);
+        
     }
-    //return 0;
+    
 }

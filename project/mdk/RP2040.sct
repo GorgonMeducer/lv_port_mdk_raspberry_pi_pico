@@ -8,10 +8,10 @@
 #define SRAM_SIZE           (1024*248)
 
 #define STACK_0_SIZE        (1024*4)
-#define STACK_1_SIZE        (1024*1)
+#define STACK_1_SIZE        (512)
 
-#define HEAP_0_SIZE         (1024*32)
-#define HEAP_1_SIZE         (1024*1)
+#define HEAP_0_SIZE         (1024*4)
+#define HEAP_1_SIZE         (512)
 
 #define RAMSIZE_VALID       (SRAM_SIZE -                                        \
                             STACK_1_SIZE - HEAP_1_SIZE -                        \
